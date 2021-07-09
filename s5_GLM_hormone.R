@@ -1,4 +1,8 @@
-### draw default setting
+#######################################################################
+##################### GLM_Hormone #####################
+#######################################################################
+
+##################### visualization default setting ##################### 
 library(ggplot2)
 m.col = "#5B84B1FF" ##dark; #2d4258
 f.col = "#FC766AFF" ##dark; #FF4333
@@ -8,14 +12,10 @@ sex.coll = scale_color_discrete(type = c(m.col, f.col))
 sex.scale = scale_x_discrete(labels = c("Male", "Female"))
 my.theme <- theme_bw() + theme(legend.position = "none", axis.title = element_text(size = 20), 
                                axis.text = element_text(size = 15, color = "black"))
-
-#########################################################
-############### Load data ###########################
-#########################################################
+##################### load data #####################
 library(dplyr)
 library(lmerTest)
 
-### data preprocessing
 setwd("~/Library/Mobile Documents/com~apple~CloudDocs/connectome21/2021-1/project/Sex/analysis data")
 df <- read.csv("demo.gps.nih.cbcl.r.train.csv")
 
@@ -92,25 +92,18 @@ df.ert.dhea.2$race.ethnicity <- as.factor(df.ert.dhea.2$race.ethnicity)
 df.ert.dhea.2$married <- as.factor(df.ert.dhea.2$married)
 df.ert.dhea.2$abcd_site <- as.factor(df.ert.dhea.2$abcd_site)
 
-#########################################################
-############### Load family ID ###########################
-#########################################################
+##################### load family ID #####################
 setwd("~/Library/Mobile Documents/com~apple~CloudDocs/connectome21/2021-1/project/Sex/analysis data")
 familyID <- readxl::read_xlsx("familyID.xlsx", na = "") #11878
 familyID.uniq <- familyID[!duplicated(familyID[,"rel_family_id"]), ] #9856
 
-
-#########################################################
-############### merge family ID and gps ###########################
-#########################################################
+##################### merge Hormone and family ID #####################
 df.ert.dhea.fm <- merge(familyID, df.ert.dhea, by = 'subjectkey')
 df.ert.dhea.fm.1 <- merge(familyID, df.ert.dhea.1, by = 'subjectkey')
 df.ert.dhea.fm.2 <- merge(familyID, df.ert.dhea.2, by = 'subjectkey')
 
-####################################################################################################
-######################################## glm (brain & hormone) ########################################
-######################################################################################################
-######################### GLM of NIH In Both Sex Group #########################
+##################### GLM brain & Hormone #####################
+###### GLM of {psex ~ Hormone} In Both Sex Group ######
 ###ert
 train.ert <- lmer(data = df.ert.dhea.fm, 
                  formula = ert ~ morctsex.1 + sex + age + height + weight + BMI + high.educ + income + 
@@ -134,7 +127,7 @@ summary(train.dhea)
 train.dhea.eta <- effectsize::eta_squared(anova(train.dhea, data = df.ert.dhea.fm), partial = T, ci = 0.95)[1,2] #family=binomial
 train.dhea.eta
 
-######################### GLM of NIH In Male #########################
+###### GLM of {Hormone ~ psex} In Males ######
 library(ggExtra)
 ### in male group
 ###ert
@@ -156,9 +149,7 @@ summary(train.dhea.1)
 train.dhea.eta.1 <- effectsize::eta_squared(anova(train.dhea.1, data = df.ert.dhea.fm.1), partial = T, ci = 0.95)[1,2] #family=binomial
 train.dhea.eta.1
 
-
-
-######################### GLM of NIH In Female #########################
+###### GLM of {Hormone ~ psex} In Females ######
 ### in female group
 cor(df.ert.dhea.fm.2$ert, df.ert.dhea.fm.2$morctsex.1)
 
@@ -186,10 +177,8 @@ summary(train.dhea.2)
 train.dhea.eta.2 <- effectsize::eta_squared(anova(train.dhea.2, data = df.ert.dhea.fm.2), partial = T, ci = 0.95)[1,2] #family=binomial
 train.dhea.eta.2
 
-
-#######################################################################
-########################hormone & intelligence (both group) ##########################
-#######################################################################
+##################### GLM Intelligence & Hormone #####################
+###### GLM of {Intelligence ~ Hormone} In Both Sex Group ######
 ######total######
 #ert
 ert.total <- glm(data = df.ert.dhea.fm, 
@@ -250,9 +239,7 @@ summary(dhea.cry)
 dhea.cry.eta <- effectsize::eta_squared(aov(glm(dhea.cry, data = df.ert.dhea.fm)), partial = T, ci = 0.95)[1,2] #family=binomial
 dhea.cry.eta
 
-#######################################################################
-########################hormone & intelligence (each sex group) ##########################
-#######################################################################
+###### GLM of {Intelligence ~ Hormone} In Each Sex Group ######
 ###### ERT ######
 #ert-total
 ert.total <- glm(data = df.ert.dhea.fm.1, 
